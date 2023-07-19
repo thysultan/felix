@@ -1,12 +1,12 @@
 
 const layout = function (val) {
   context.clearRect(0, 0, canvas.width, canvas.height);
-  measure(val, 0, '', '', [0, 0, 0, 0, 0], [300, 300, 0, 0, 0])(([style, value], [x, y], [w, h]) => {
+  measure(val)(([style, value], [x, y], [w, h]) => {
     if (value) { context.font = `${style.fontSize} ${style.fontFamily}`; context.fillStyle = style.color; context.fillText(children, x, y + h); }
     else { context.fillStyle = style.backgroundColor; context.fillRect(x, y, w, h); }
   });
 }
-const measure = function (val, ddd, aaa, jjj, vxy, vwh) {
+const measure = function (val, ddd = 0, aaa = '', jjj = '', vxy = [0, 0, 0, 0, 0], vwh = [600, 600, 0, 0, 0]) {
   let { type, style, children } = val;
   let { display = 'flex' } = style;
   if (display === 'none') return () => {};
@@ -38,7 +38,7 @@ const measure = function (val, ddd, aaa, jjj, vxy, vwh) {
     size: {
       cwh[0x3] += ppp[xxx][0] + ppp[xxx][1] + ((cxy[0x2] - 1) * gap); // used space += padding + (n * gap)
       cwh[xxx] ??= !pos ? cwh[0x3] : (vwh[xxx] - vwh[0x3]) * ((fff || 1) / vwh[0x2]); // if implicit sized then size = (total space - used space) * (flex or 1)/(total flex)
-      cwh[yyy] ??= vwh[0x4];
+      cwh[yyy] ??= !pos ? cwh[0x4] : (vwh[0x4] || vwh[yyy]);
     }
     axis: {
       // poisition: top, right, bottom, left
@@ -93,16 +93,24 @@ s();
 
 const h = (style, ...children) => ({type: 'view', style, children: children})
 const r = () => layout(
-  h({ width: innerWidth, height: void innerHeight, direction: 'row', backgroundColor: 'red' },
-    h({ flex: 1, backgroundColor: 'rgba(0,0,255,0.6)', height: void (innerHeight/4), }),
-    h({ flex: 2, backgroundColor: 'rgba(0,255,0,0.6)', height: (innerHeight/2), }),
+  h({ width: 600, height: 600, direction: 'r', backgroundColor: 'red' },
+    h({ flex: 1, backgroundColor: 'green', height: void (600/4), }),
+    h({ flex: 2, backgroundColor: 'blue', height: void (600/2), }),
   ),
+  // h({ width: 600, height: 600, direction: 'r', backgroundColor: 'red' },
+  //   h({ flex: 1, backgroundColor: 'green', height: void (600/4), }),
+  //   h({ flex: 2, backgroundColor: 'blue', height: (600/2), }),
+  // ),
+  // h({ width: 600, height: 600, direction: 'c', backgroundColor: 'red' },
+  //   h({ flex: 1, backgroundColor: 'green', width: void (600/4), }),
+  //   h({ flex: 2, backgroundColor: 'blue', width: (600/2), }),
+  // ),
 )
 // setInterval(r, 100);
 
-console.time('abc');
+console.time('timer');
 for (let i = 0; i < 1; ++i) r();
-console.timeEnd('abc');
+console.timeEnd('timer');
 
 
 /* Swift style node creation */
