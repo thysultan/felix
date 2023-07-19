@@ -102,10 +102,11 @@ function Bar () {
 // for (let constructor of [String, Function]) {
 //   const PROPS = Symbol.for('@@props');
 //   const STYLE = Symbol.for('@@style');
+//   const CHILD = Symbol.for('@@CHILD');
 //   defineProperties(constructor.prototype, {
 //     props: {value: function (p) { this[PROPS] = p; return this; }},
 //     style: {value: function (s) { this[STYLE] = s; return this; }},
-//     child: {value: function (...c) { return {type: this.valueOf(), props: this[PROPS], style: this[STYLE], child: c}; }},
+//     child: {value: function (...c) { this[CHILD] = c; return this; }},
 //   });
 // }
 
