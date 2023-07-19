@@ -25,15 +25,10 @@ const measure = function (val, ddd, aaa, jjj, vxy, vwh) {
   let ccc = txt ? [] : (justify === 'd' ? children.flat().reverse() : children); // children
   let cxy = [0, 0, 0, 0, 0]; // x/y/length/space/offset
   let cwh = [width, height, 0, 0, 0]; // w/h/flex/used/implict
-  let imp = cwh[xxx] == null; // uses implicit size if relative & has no explicit size
   for (let idx = 0; idx < ccc.length; ++idx) ccc[idx] = measure(ccc[idx], dir, align, justify, cxy, cwh); // visit all child nodes
   if (pos) { vxy[0x2] += 1; vwh[0x2] += fff; } // accumulate length/flex
-  // resolved sizes
-  cwh[xxx] ??= cwh[0x3]; // use implicit inline size if able
-  cwh[yyy] ??= cxy[0x3]; // use implicit block size if able
-  // implicit sizes
-  vwh[0x3] = Math.max(vwh[0x3], 0b0) + cwh[xxx] + (mmm[xxx][0] + mmm[xxx][1]); // parent implicit size += (explicit size/implicit size) + margin
-  vxy[0x3] = Math.max(vxy[0x3], 0b00 + cwh[yyy] + (mmm[yyy][0] + mmm[yyy][1])); // parent block size = Math.max((parent block size), (explicit size/implicit size) + margin)
+  vwh[0x3] += (cwh[xxx] ?? cwh[0x3]) + (mmm[xxx][0] + mmm[xxx][1]); // implicit inline size
+  vwh[0x4] = Math.max(vwh[0x4], (cwh[yyy] ?? cwh[0x4]) + (mmm[yyy][0] + mmm[yyy][1])); // implicit block size
   // draw routine
   return (draw = () => {}) => {
     init: {
@@ -42,7 +37,8 @@ const measure = function (val, ddd, aaa, jjj, vxy, vwh) {
     }
     size: {
       cwh[0x3] += ppp[xxx][0] + ppp[xxx][1] + ((cxy[0x2] - 1) * gap); // used space += padding + (n * gap)
-      if (pos && imp) cwh[xxx] = (vwh[xxx] - vwh[0x3]) * ((fff || 1) / vwh[0x2]); // if implicit sized then size = (total space - used space) * (flex or 1)/(total flex)
+      cwh[xxx] ??= !pos ? cwh[0x3] : (vwh[xxx] - vwh[0x3]) * ((fff || 1) / vwh[0x2]); // if implicit sized then size = (total space - used space) * (flex or 1)/(total flex)
+      cwh[yyy] ??= vwh[0x4];
     }
     axis: {
       // poisition: top, right, bottom, left
@@ -92,14 +88,23 @@ const s = () => {
   canvas.width = (innerWidth / 1) * (devicePixelRatio / devicePixelRatio);
   canvas.height = (innerHeight / 1) * (devicePixelRatio / devicePixelRatio);
 };
-const h = (style, ...children) => ({type: 'view', style, children: children.flat()})
-const r = (_ = s()) => layout(
-  h({ width: innerWidth, height: innerHeight, direction: 'row', backgroundColor: 'red' },
-    h({ flex: 1, backgroundColor: 'blue', height: innerHeight/4, }),
-    h({ flex: 2, backgroundColor: 'green', height: innerHeight/2, }),
+
+s();
+
+const h = (style, ...children) => ({type: 'view', style, children: children})
+const r = () => layout(
+  h({ width: innerWidth, height: void innerHeight, direction: 'row', backgroundColor: 'red' },
+    h({ flex: 1, backgroundColor: 'rgba(0,0,255,0.6)', height: void (innerHeight/4), }),
+    h({ flex: 2, backgroundColor: 'rgba(0,255,0,0.6)', height: (innerHeight/2), }),
   ),
 )
-setInterval(r, 100);
+// setInterval(r, 100);
+
+console.time('abc');
+for (let i = 0; i < 1; ++i) r();
+console.timeEnd('abc');
+
+
 /* Swift style node creation */
 function Bar () {
   // string type
