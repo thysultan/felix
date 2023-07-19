@@ -1,6 +1,4 @@
 
-const canvas = Object.assign(document.body, {style: 'padding:0;margin:0;'}).appendChild(document.createElement('canvas'));
-const context = canvas.getContext('2d');
 const layout = function (val) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   measure(val, 0, '', '', [0, 0, 0, 0, 0], [300, 300, 0, 0, 0])(([style, value], [x, y], [w, h]) => {
@@ -30,15 +28,12 @@ const measure = function (val, ddd, aaa, jjj, vxy, vwh) {
   let imp = cwh[xxx] == null; // uses implicit size if relative & has no explicit size
   for (let idx = 0; idx < ccc.length; ++idx) ccc[idx] = measure(ccc[idx], dir, align, justify, cxy, cwh); // visit all child nodes
   if (pos) { vxy[0x2] += 1; vwh[0x2] += fff; } // accumulate length/flex
-
   // resolved sizes
   cwh[xxx] ??= cwh[0x3]; // use implicit inline size if able
   cwh[yyy] ??= cxy[0x3]; // use implicit block size if able
-
   // implicit sizes
   vwh[0x3] = Math.max(vwh[0x3], 0b0) + cwh[xxx] + (mmm[xxx][0] + mmm[xxx][1]); // parent implicit size += (explicit size/implicit size) + margin
   vxy[0x3] = Math.max(vxy[0x3], 0b00 + cwh[yyy] + (mmm[yyy][0] + mmm[yyy][1])); // parent block size = Math.max((parent block size), (explicit size/implicit size) + margin)
-
   // draw routine
   return (draw = () => {}) => {
     init: {
@@ -91,7 +86,8 @@ const measure = function (val, ddd, aaa, jjj, vxy, vwh) {
 
 // playground =========================
 
-
+const canvas = Object.assign(document.body, {style: 'padding:0;margin:0;'}).appendChild(document.createElement('canvas'));
+const context = canvas.getContext('2d');
 const s = () => {
   canvas.width = (innerWidth / 1) * (devicePixelRatio / devicePixelRatio);
   canvas.height = (innerHeight / 1) * (devicePixelRatio / devicePixelRatio);
