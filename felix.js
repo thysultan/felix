@@ -71,33 +71,34 @@ const measure = function (val, ii, aa, jj, vxy, vwh) {
   }
 }
 
-/* Swift style vnode creation
+// playground =========================
 
-  function Bar () {
-    // string type
-    return ('text')
-      .props({ onClick: handleClick })
-      .style('display: flex; direction: row; alignment: center; justify: center;')
-      .child(
-        ('text').style('font-size: 12px;').child('Hello'),
-        ('text').style('font-size: 12px;').child('World'),
-      )
+/* Swift style vnode creation */
+function Bar () {
+  // string type
+  return ('text')
+    .props({ onClick: handleClick })
+    .style('display: flex; direction: row; alignment: center; justify: center;')
+    .child(
+      ('text').style('font-size: 12px;').child('Hello'),
+      ('text').style('font-size: 12px;').child('World'),
+    )
 
-    // function type
-    return (Bar)
-      .props({})
-      .style('')
-      .child(
-        ('text').style('font-size: 12px;').child('Hello'),
-        ('text').style('font-size: 12px;').child('World'),
-      )
-  }
+  // function type
+  return (Bar)
+    .props({})
+    .style('')
+    .child(
+      ('text').style('font-size: 12px;').child('Hello'),
+      ('text').style('font-size: 12px;').child('World'),
+    )
+}
+/* Made possible by */
+// for (let constructor of [String, Function]) {
+//   defineProperties(constructor.prototype, {
+//     props: {value: function (p) { this['@@props'] = p; return this; }},
+//     style: {value: function (s) { this['@@style'] = s; return this; }},
+//     child: {value: function (...c) { this['@@child'] = c; return this; }},
+//   });
+// }
 
-  for (let constructor of [String, Function])
-    defineProperties(constructor.prototype, {
-      props: {value: function (p) { this['@@props'] = p; return this; }},
-      style: {value: function (s) { this['@@style'] = s; return this; }},
-      child: {value: function (...c) { this['@@child'] = c; return this; }},
-    });
-
-*/
