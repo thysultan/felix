@@ -71,3 +71,29 @@ const measure = function (val, ii, aa, jj, vxy, vwh) {
 const layout = function ([xyz, ccc]) {
   xyz(); for (let [xyz] of ccc) xyz();
 }
+
+/* Swift style vnode creation
+function Bar () {
+  // string type
+  return ('text')
+    .props({ onClick: handleClick })
+    .style('display: flex; direction: row; alignment: center; justify: center;')
+    .child(
+      ('text').style('font-size: 12px;').child('Hello'),
+      ('text').style('font-size: 12px;').child('World'),
+    )
+  // function type
+  return (Bar)
+    .props({})
+    .style('')
+    .child(
+      ('text').style('font-size: 12px;').child('Hello'),
+      ('text').style('font-size: 12px;').child('World'),
+    )
+}
+defineProperties(Object.prototype, {
+  props: {value: function (p) { this['@@props'] = p; return this; }},
+  style: {value: function (s) { this['@@style'] = s; return this; }},
+  child: {value: function (...c) { this['@@child'] = c.flat(); return this; }},
+});
+*/
