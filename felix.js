@@ -3,6 +3,22 @@ const [ empty ] = [ [0, 0, 0, 0] ];
 const { is } = Object;
 const { max } = Math;
 
+export function measure(obj, ddd, vxy, vwh) {
+  const { props: { style }, children } = obj;
+  const direction = +(!(style.direction?.charCodeAt(0) === 114)); // direction: (r)ow, column*
+  const xxx = ddd; // is row/column
+  const yyy = +(!xxx); // opposite of is row/column
+  const cxy = [0, 0, 0, 0, 0]; // x/y/length/space/offset
+  const cwh = [style.width ?? -0, style.height ?? -0, 0, 0, 0]; // w/h/flex/used/implict
+  const mmm = style.margin ?? empty;
+  obj.returns = { xxx, cxy, cwh };
+  if (style.display?.charCodeAt(0) === 110) return void(cwh[0] = cwh[1] = 0); /// display: (n)one
+  if ((style.position ?? 'r').charCodeAt(0) === 114) { vxy[0x2] += 1; vwh[0x2] += max(0, style.flex | 0); } // // position: (r)elative, accumulate length/flex
+  for (let idx = 0; idx < children.length; ++idx) measure(children[idx], direction, cxy, cwh); // visit all child nodes
+  vwh[0x3] += (is(cwh[xxx], -0) ? cwh[0x3] : cwh[xxx]) + (mmm[xxx + 0] + mmm[xxx + 2]); // implicit inline size
+  vwh[0x4] = max(vwh[0x4], (is(cwh[yyy], -0) ? cwh[0x4] : cwh[yyy]) + (mmm[yyy + 0] + mmm[yyy + 2])); // implicit block size
+}
+
 export function layout(obj, aaa, jjj, vxy, vwh, gpu) {
   const { props: { style }, children, returns: { xxx, cxy, cwh } } = obj;
   const yyy = +(!xxx); // opposite of is row/column
@@ -59,20 +75,4 @@ export function layout(obj, aaa, jjj, vxy, vwh, gpu) {
     cxy[xxx] += mmm[yyy + 2] + ppp[yyy + 2] + cwh[xxx]; // margin.end + padding.end + width
     vxy[0x4] += cxy[xxx]; // move cursor
   }
-}
-
-export function measure(obj, ddd, vxy, vwh) {
-  const { props: { style }, children } = obj;
-  const direction = +(!(style.direction?.charCodeAt(0) === 114)); // direction: (r)ow, column*
-  const xxx = ddd; // is row/column
-  const yyy = +(!xxx); // opposite of is row/column
-  const cxy = [0, 0, 0, 0, 0]; // x/y/length/space/offset
-  const cwh = [style.width ?? -0, style.height ?? -0, 0, 0, 0]; // w/h/flex/used/implict
-  const mmm = style.margin ?? empty;
-  obj.returns = { xxx, cxy, cwh };
-  if (style.display?.charCodeAt(0) === 110) return void(cwh[0] = cwh[1] = 0); /// display: (n)one
-  if ((style.position ?? 'r').charCodeAt(0) === 114) { vxy[0x2] += 1; vwh[0x2] += max(0, style.flex | 0); } // // position: (r)elative, accumulate length/flex
-  for (let idx = 0; idx < children.length; ++idx) measure(children[idx], direction, cxy, cwh); // visit all child nodes
-  vwh[0x3] += (is(cwh[xxx], -0) ? cwh[0x3] : cwh[xxx]) + (mmm[xxx + 0] + mmm[xxx + 2]); // implicit inline size
-  vwh[0x4] = max(vwh[0x4], (is(cwh[yyy], -0) ? cwh[0x4] : cwh[yyy]) + (mmm[yyy + 0] + mmm[yyy + 2])); // implicit block size
 }
