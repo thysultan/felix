@@ -1,21 +1,19 @@
 
 const [ empty ] = [ [0, 0, 0, 0] ];
 const { is } = Object;
-const { max, abs } = Math;
+const { max } = Math;
 
-export function layout(val, aaa, jjj, vxy, vwh, gpu) {
-  const { props: { style }, children, returns: { xxx, cxy, cwh } } = val;
+export function layout(obj, aaa, jjj, vxy, vwh, gpu) {
+  const { props: { style }, children, returns: { xxx, cxy, cwh } } = obj;
   const yyy = +(!xxx); // opposite of is row/column
   const ppp = style.padding ?? empty;
   const mmm = style.margin ?? empty;
   const position = +((style.position ?? 'r').charCodeAt(0) === 114); // position: (r)elative*, absolute, fixed
-  const self = style.alignSelf ?? '\0\0\0';
-  const align = (style.alignItems ?? 'start').charCodeAt(2)
-  const justify = (style.justifyContent ?? 'start').charCodeAt(2) | 0;
-
-  if (self) aaa = self.charCodeAt(2) | 0; // al(i)gn-self, by default we assume the aligment of the parents align-items but if there's an align-self we use that
+  const self = style.alignSelf?.charCodeAt(2);
+  const align = style.alignItems?.charCodeAt(2) ?? 97;
+  const justify = style.justifyContent?.charCodeAt(2) ?? 0;
+  if (self) aaa = self | 0; // al(i)gn-self, by default we assume the aligment of the parents align-items but if there's an align-self we use that
   if (justify === 100) children = children.reverse(); // justify-content implemntation detail
-
   // start layout algorithm
   init: {
     cxy[xxx] += mmm[xxx + 0] + ppp[xxx + 0] + vxy[0x4]; // margin-start + padding.start + cursor
@@ -23,12 +21,12 @@ export function layout(val, aaa, jjj, vxy, vwh, gpu) {
   }
   size: {
     cwh[0x3] = cwh[0x3] + (ppp[xxx + 0] + ppp[xxx + 2] + ((cxy[0x2] - 1) * max(0, style.gap ?? 0))); // used space += padding + (n * gap)
-    cwh[xxx] = !is(-0, cwh[xxx]) ? cwh[xxx] : (!position ? cwh[0x3] : (vwh[xxx] - vwh[0x3]) * ((max(0, style.flex | 0) || 1) / vwh[0x2])); // if implicit sized then size = (total space - used space) * (flex or 1)/(total flex)
-    cwh[yyy] = !is(-0, cwh[yyy]) ? cwh[yyy] : (!position ? cwh[0x4] : (vwh[0x4] || vwh[yyy]));
+    cwh[xxx] = is(cwh[xxx], -0) ? (!position ? cwh[0x3] : (vwh[xxx] - vwh[0x3]) * ((max(0, style.flex | 0) || 1) / vwh[0x2])) : cwh[xxx]; // if implicit sized then size = (total space - used space) * (flex or 1)/(total flex)
+    cwh[yyy] = is(cwh[yyy], -0) ? (!position ? cwh[0x4] : (vwh[0x4] || vwh[yyy])) : cwh[yyy];
   }
   position: { // poisition: top, right, bottom, left
-    for (let [lt, rb, z, xy, wh] of [[style.left ?? -0, style.right ?? -0, cwh[0x0], 0x0, 0x1], [style.top ?? -0, style.bottom ?? -0, cwh[0x1], 0x0, 0x1]])
-      if (!is(-0, lt) && !is(-0, rb) && is(-0, z)) { // left, right set while width is undefined
+    for (let [lt, rb, ww, xy, wh] of [[style.left ?? -0, style.right ?? -0, cwh[0x0], 0x0, 0x1], [style.top ?? -0, style.bottom ?? -0, cwh[0x1], 0x0, 0x1]])
+      if (!is(lt, -0) && !is(rb, -0) && is(ww, -0)) { // left, right set while width is undefined
         cxy[xy] = (position ? cxy : vxy)[xy] + lt; // node[x/y] = root[x/y] + l/t;
         cwh[wh] = vwh[wh] - lt - rb; // node[w/h] = root[w/h] - l/t - r/b;
       } else if (lt != null) cxy[xy] = (position ? cxy : vxy)[xy] + lt; // when only l/t, node[x/y] = root/node[x/y] + l/t; dependant on absolute position
@@ -52,7 +50,7 @@ export function layout(val, aaa, jjj, vxy, vwh, gpu) {
     }
   }
   draw: {
-    gpu(val, [vxy[0] + cxy[0], vxy[1] + cxy[1]], [cwh[0], cwh[1]]); // draw to canvas within the same 2nd pass
+    gpu(obj, [vxy[0] + cxy[0], vxy[1] + cxy[1]], [cwh[0], cwh[1]]); // draw to canvas within the same 2nd pass
   }
   each: {
     for (var idx = 0; idx < children.length; idx++) layout(children[idx], align, justify, cxy, cwh, gpu); // visit all child nodes
@@ -63,20 +61,18 @@ export function layout(val, aaa, jjj, vxy, vwh, gpu) {
   }
 }
 
-export function measure(val, ddd, vxy, vwh) {
-  const { props: { style }, children } = val;
-  const direction = +(!((style.direction ?? 'c').charCodeAt(0) === 114)); // direction: (r)ow, column*
+export function measure(obj, ddd, vxy, vwh) {
+  const { props: { style }, children } = obj;
+  const direction = +(!(style.direction?.charCodeAt(0) === 114)); // direction: (r)ow, column*
   const xxx = ddd; // is row/column
   const yyy = +(!xxx); // opposite of is row/column
   const cxy = [0, 0, 0, 0, 0]; // x/y/length/space/offset
   const cwh = [style.width ?? -0, style.height ?? -0, 0, 0, 0]; // w/h/flex/used/implict
   const mmm = style.margin ?? empty;
-
-  if ((style.display ?? 'f').charCodeAt(0) === 110) return; /// display: (n)one
+  obj.returns = { xxx, cxy, cwh };
+  if (style.display?.charCodeAt(0) === 110) return void(cwh[0] = cwh[1] = 0); /// display: (n)one
   if ((style.position ?? 'r').charCodeAt(0) === 114) { vxy[0x2] += 1; vwh[0x2] += max(0, style.flex | 0); } // // position: (r)elative, accumulate length/flex
-
-  val.returns = { xxx, cxy, cwh }; for (let idx = 0; idx < children.length; ++idx) measure(children[idx], direction, cxy, cwh); // visit all child nodes
-
-  vwh[0x3] += (!is(-0, cwh[xxx]) ? cwh[xxx] : cwh[0x3]) + (mmm[xxx + 0] + mmm[xxx + 2]); // implicit inline size
-  vwh[0x4] = max(vwh[0x4], (!is(-0, cwh[yyy]) ? cwh[yyy] : cwh[0x4]) + (mmm[yyy + 0] + mmm[yyy + 2])); // implicit block size
+  for (let idx = 0; idx < children.length; ++idx) measure(children[idx], direction, cxy, cwh); // visit all child nodes
+  vwh[0x3] += (is(cwh[xxx], -0) ? cwh[0x3] : cwh[xxx]) + (mmm[xxx + 0] + mmm[xxx + 2]); // implicit inline size
+  vwh[0x4] = max(vwh[0x4], (is(cwh[yyy], -0) ? cwh[0x4] : cwh[yyy]) + (mmm[yyy + 0] + mmm[yyy + 2])); // implicit block size
 }
