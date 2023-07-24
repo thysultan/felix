@@ -1,1 +1,87 @@
-<script type=module src=felix.js></script>
+<script type=module defer>
+	import {measure, layout} from './felix.js';
+	// playground =========================
+
+	function draw({type, props: {style}, children}, [x, y], [w, h]) {
+	  if (!type) { context.font = `${style.fontSize} ${style.fontFamily}`; context.fillStyle = style.color; context.fillText(children, x, y + h); }
+	  else { context.fillStyle = style.backgroundColor; context.fillRect(x, y, w, h); }
+	}
+
+	const canvas = Object.assign(document.body, {style: 'padding:0;margin:0;'}).appendChild(document.createElement('canvas'));
+	const context = globalThis.context = canvas.getContext('2d');
+	const s = () => {
+	  canvas.width = (innerWidth / 1) * (devicePixelRatio / devicePixelRatio);
+	  canvas.height = (innerHeight / 1) * (devicePixelRatio / devicePixelRatio);
+	};s();
+
+	const h = (style, children) => ({type: 'view', props: {style}, children: children, returns: null});
+	const r = () => {
+	  // const a = document.createElement('div')
+	  // const b = document.createElement('div');
+	  // const c = document.createElement('div');
+	  // Object.assign(a.style, { width: 600, height: 600, display: 'flex', flexDirection: 'r', backgroundColor: 'red' });
+	  // Object.assign(b.style, { flex: 1, height: void (600/4), backgroundColor: 'blue' });
+	  // Object.assign(c.style, { flex: 2, height: void (600/4), backgroundColor: 'green' });
+	  // a.appendChild(b);
+	  // a.appendChild(c);
+	  // document.body.appendChild(a);
+	  // return;
+	  context.clearRect(0, 0, canvas.width, canvas.height);
+	  const element = h({ width: 600, height: 600, direction: 'r', backgroundColor: 'red' }, [
+	    h({ flex: 1, backgroundColor: 'green', height: void (600/4), }, []),
+	    h({ flex: 2, backgroundColor: 'blue', height: void (600/2), }, []),
+	  ]);
+	  // h({ width: 600, height: 600, direction: 'r', backgroundColor: 'red' },
+	  //   h({ flex: 1, backgroundColor: 'green', height: void (600/4), }),
+	  //   h({ flex: 2, backgroundColor: 'blue', height: (600/2), }),
+	  // ),
+	  // h({ width: 600, height: 600, direction: 'c', backgroundColor: 'red' },
+	  //   h({ flex: 1, backgroundColor: 'green', width: void (600/4), }),
+	  //   h({ flex: 2, backgroundColor: 'blue', width: (600/2), }),
+	  // ),
+	  const cxy = [0, 0, 0, 0, 0];
+	  const cwh = [600, 600, 0, 0, 0];
+	  measure(element, 0, cxy, cwh);
+	  layout(element, 0, 0, cxy, cwh, draw);
+	};
+	// setInterval(r, 100);
+
+	const size = 1e4;
+	const length = size * 3;
+	let time = performance.now();
+	for (let i = 0; i < size; ++i) { r(); }
+	time = performance.now() - time;
+	document.title = time;
+
+	/* Swift style node creation */
+	function Bar () {
+	  // string type
+	  return ('text')
+	    .props({ onClick: handleClick })
+	    .style('display: flex; direction: row; alignment: center; justify: center;')
+	    .child(
+	      ('text').style('font-size: 12px;').child('Hello'),
+	      ('text').style('font-size: 12px;').child('World'),
+	    )
+
+	  // function type
+	  return (Bar)
+	    .props({})
+	    .style('')
+	    .child(
+	      ('text').style('font-size: 12px;').child('Hello'),
+	      ('text').style('font-size: 12px;').child('World'),
+	    )
+	}
+	/* Made possible by */
+	// for (let constructor of [String, Function]) {
+	//   const PROPS = Symbol.for('@@props');
+	//   const STYLE = Symbol.for('@@style');
+	//   const CHILD = Symbol.for('@@CHILD');
+	//   defineProperties(constructor.prototype, {
+	//     props: {value: function (p) { this[PROPS] = p; return this; }},
+	//     style: {value: function (s) { this[STYLE] = s; return this; }},
+	//     child: {value: function (...c) { this[CHILD] = c; return this; }},
+	//   });
+	// }
+</script>
